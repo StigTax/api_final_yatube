@@ -10,6 +10,7 @@ from .serializers import (
     PostSerializer, FollowSerializer
 )
 from .permissions import IsAuthorOrReadOnly
+from .viewsets import CustomFollowViewSet
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -53,20 +54,10 @@ class CommentViewSet(viewsets.ModelViewSet):
         )
 
 
-class FollowViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet
-):
-    """Вьюсет для работы с подписками."""
+class FollowViewSet(CustomFollowViewSet):
+    """
+    Вьюсет для работы с подписками.
+    Наследуется от кастомного вьюсета.
+    """
+
     serializer_class = FollowSerializer
-    queryset = Follow.objects.all()
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('following__username',)
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_queryset(self):
-        return Follow.objects.filter(user=self.request.user)
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)

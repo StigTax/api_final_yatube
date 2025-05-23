@@ -1,4 +1,5 @@
 from django.urls import path, include
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
@@ -10,12 +11,12 @@ from .views import (
 
 v1_router = DefaultRouter()
 v1_router.register(
-    r'posts',
+    'posts',
     PostViewSet,
     basename='posts'
 )
 v1_router.register(
-    r'groups',
+    'groups',
     GroupViewSet,
     basename='groups'
 )
@@ -25,13 +26,14 @@ v1_router.register(
     basename='comments'
 )
 v1_router.register(
-    r'follow',
+    'follow',
     FollowViewSet,
     basename='follow'
 )
 
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
+    path('v1/', include('djoser.urls.jwt')),
 ]
 
 
