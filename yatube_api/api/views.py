@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import (
-    viewsets, permissions
+    viewsets, permissions, filters
 )
 from rest_framework.pagination import LimitOffsetPagination
 
@@ -10,7 +10,7 @@ from .serializers import (
     PostSerializer, FollowSerializer
 )
 from .permissions import IsAuthorOrReadOnly
-from .viewsets import CustomFollowViewSet
+from .viewsets import CreateListViewSet
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -54,10 +54,19 @@ class CommentViewSet(viewsets.ModelViewSet):
         )
 
 
-class FollowViewSet(CustomFollowViewSet):
+class FollowViewSet(CreateListViewSet):
     """
     Вьюсет для работы с подписками.
     Наследуется от кастомного вьюсета.
     """
 
     serializer_class = FollowSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('following__username',)
+
+    def get_queryset(self):
+        return self.request.user.follower.all()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
